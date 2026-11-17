@@ -1,0 +1,21 @@
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" routerLink="/flights">&#9992; SkyBook</a>
+
+    <nav aria-label="Main navigation" class="links">
+      <a routerLink="/flights" routerLinkActive="active">Flights</a>
+    </nav>
+
+    <div class="account">
+      @if (auth.isLoggedIn()) {
+        <span class="role-chip" [class.admin]="auth.isAdmin()">
+          {{ auth.isAdmin() ? 'Admin' : 'Passenger' }}
+        </span>
+        <button type="button" class="btn btn-ghost" (click)="logout()">Log out</button>
+      } @else {
+        <a class="btn btn-ghost" routerLink="/login">Log in</a>
+        <a class="btn btn-primary" routerLink="/register">Sign up</a>
+      }
+    </div>
+  </div>
+</header>
