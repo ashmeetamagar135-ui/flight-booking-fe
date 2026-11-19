@@ -1,0 +1,101 @@
+<p class="back"><a routerLink="/admin/flights">&larr; Back to manage flights</a></p>
+<h1>{{ flightId ? 'Edit flight' : 'Add a flight' }}</h1>
+
+@if (loading()) {
+  <p>Loading flight...</p>
+}
+
+<form class="card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="grid">
+    <div class="field">
+      <label for="airline">Airline</label>
+      <select id="airline" formControlName="airline_id">
+        <option value="">Choose an airline</option>
+        @for (a of airlines(); track a._id) {
+          <option [value]="a._id">{{ a.airline_name }} ({{ a.airline_code }})</option>
+        }
+      </select>
+      @if (form.controls.airline_id.touched && form.controls.airline_id.invalid) {
+        <small class="field-error">Choose an airline.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="number">Flight number</label>
+      <input id="number" type="text" formControlName="flight_number" />
+      @if (form.controls.flight_number.touched && form.controls.flight_number.invalid) {
+        <small class="field-error">Flight number is required (max 10 characters).</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="dep-city">From (city)</label>
+      <input id="dep-city" type="text" formControlName="departure_city" />
+      @if (form.controls.departure_city.touched && form.controls.departure_city.invalid) {
+        <small class="field-error">Departure city is required.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="arr-city">To (city)</label>
+      <input id="arr-city" type="text" formControlName="arrival_city" />
+      @if (form.controls.arrival_city.touched && form.controls.arrival_city.invalid) {
+        <small class="field-error">Arrival city is required.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="dep">Departure (UTC)</label>
+      <input id="dep" type="datetime-local" formControlName="departure_time" />
+      @if (form.controls.departure_time.touched && form.controls.departure_time.invalid) {
+        <small class="field-error">Departure time is required.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="arr">Arrival (UTC)</label>
+      <input id="arr" type="datetime-local" formControlName="arrival_time" />
+      @if (form.controls.arrival_time.touched && form.controls.arrival_time.invalid) {
+        <small class="field-error">Arrival time is required.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="price">Ticket price (GBP)</label>
+      <input id="price" type="number" min="1" step="0.01" formControlName="ticket_price" />
+      @if (form.controls.ticket_price.touched && form.controls.ticket_price.invalid) {
+        <small class="field-error">Price must be more than 0.</small>
+      }
+    </div>
+
+    @if (flightId) {
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status">
+          <option value="scheduled">Scheduled</option>
+          <option value="delayed">Delayed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+    } @else {
+      <div class="field">
+        <label for="seats">Number of seats (1 to 500)</label>
+        <input id="seats" type="number" min="1" max="500" formControlName="seat_count" />
+        @if (form.controls.seat_count.touched && form.controls.seat_count.invalid) {
+          <small class="field-error">Enter a whole number from 1 to 500.</small>
+        }
+      </div>
+    }
+  </div>
+
+  @if (form.touched && form.hasError('order')) {
+    <p class="alert" role="alert">The arrival time must be after the departure time.</p>
+  }
+  @if (error()) {
+    <p class="alert" role="alert">{{ error() }}</p>
+  }
+
+  <button class="btn btn-primary" type="submit" [disabled]="saving()">
+    {{ saving() ? 'Saving...' : flightId ? 'Save changes' : 'Create flight' }}
+  </button>
+</form>

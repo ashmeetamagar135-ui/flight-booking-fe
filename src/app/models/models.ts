@@ -89,3 +89,45 @@ export interface Reservation {
 }
 
 export type PaymentMethod = 'card' | 'paypal' | 'bank_transfer';
+
+export interface Airline {
+  _id: string;
+  airline_code: string;
+  airline_name: string;
+}
+
+export interface ReviewList {
+  count: number;
+  average_rating: number | null;
+  reviews: Review[];
+}
+
+// ---- admin analytics (GET /analytics/...) ----
+export interface BookingTrends {
+  bookings_per_month: {
+    month: string;
+    total: number;
+    confirmed: number;
+    cancelled: number;
+    cancellation_rate_percent: number;
+  }[];
+  top_routes: { from: string; to: string; bookings: number }[];
+}
+
+export interface RevenueReport {
+  total_paid: number;
+  by_airline: { airline: string; payments: number; revenue: number; average_payment: number }[];
+  by_payment_status: { payment_status: string; count: number; total: number }[];
+}
+
+export interface OccupancyReport {
+  flights: {
+    flight_number: string;
+    departure_city: string;
+    arrival_city: string;
+    total_seats: number;
+    booked_seats: number;
+    occupancy_percent: number;
+  }[];
+  airlines: { airline: string; flights: number; average_occupancy_percent: number }[];
+}

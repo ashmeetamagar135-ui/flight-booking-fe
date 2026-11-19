@@ -1,0 +1,85 @@
+<section class="card reviews" aria-labelledby="rev-title">
+  <div class="head">
+    <h2 id="rev-title">Passenger reviews</h2>
+    @if (average() !== null) {
+      <span class="avg" aria-label="Average rating">
+        <span class="stars">{{ stars(average()!) }}</span>
+        {{ average() }} / 5
+      </span>
+    }
+    <label class="filter">
+      Show
+      <select #mr (change)="setMinRating(mr.value)">
+        <option value="">All ratings</option>
+        <option value="4">4 stars and up</option>
+        <option value="3">3 stars and up</option>
+        <option value="2">2 stars and up</option>
+      </select>
+    </label>
+  </div>
+
+  @if (notice()) {
+    <p class="success" role="status">{{ notice() }}</p>
+  }
+  @if (error()) {
+    <p class="alert" role="alert">{{ error() }}</p>
+  }
+
+  @if (canAdd() || editingId()) {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="review-form" novalidate>
+      <h3>{{ editingId() ? 'Edit your review' : 'Write a review' }}</h3>
+      <div class="field">
+        <label for="rating">Rating</label>
+        <select id="rating" formControlName="rating">
+          @for (n of [5, 4, 3, 2, 1]; track n) {
+            <option [ngValue]="n">{{ n }} - {{ stars(n) }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label for="comment">Comment (up to 500 characters)</label>
+        <textarea id="comment" rows="3" formControlName="comment"></textarea>
+        @if (form.controls.comment.touched && form.controls.comment.invalid) {
+          <small class="field-error">Please write a comment (max 500 characters).</small>
+        }
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="busy()">
+        {{ editingId() ? 'Save changes' : 'Post review' }}
+      </button>
+      @if (editingId()) {
+        <button class="btn btn-ghost" type="button" (click)="cancelEdit()">Cancel</button>
+      }
+    </form>
+  } @else if (!auth.isLoggedIn()) {
+    <p class="hint">Log in to write a review.</p>
+  }
+
+  @for (r of reviews(); track r.review_id) {
+    <article class="review">
+      <div class="top">
+        <strong>{{ r.user_name }}</strong>
+        <span class="stars" [attr.aria-label]="r.rating + ' out of 5 stars'">{{ stars(r.rating) }}</span>
+        <small>{{ r.created_at | date: 'd MMM y' : 'UTC' }}</small>
+      </div>
+      <p>{{ r.comment }}</p>
+
+      @if (canManage(r)) {
+        <div class="actions">
+          @if (deleteId() === r.review_id) {
+            <span>Delete this review?</span>
+            <button class="btn btn-danger" type="button" [disabled]="busy()"
+                    (click)="confirmDelete(r)">Yes, delete</button>
+            <button class="btn btn-ghost" type="button" (click)="deleteId.set(null)">Keep</button>
+          } @else {
+            <button class="btn btn-ghost" type="button" (click)="startEdit(r)">Edit</button>
+            <button class="btn btn-ghost" type="button" (click)="deleteId.set(r.review_id)">Delete</button>
+          }
+        </div>
+      }
+    </article>
+  } @empty {
+    @if (!loading()) {
+      <p class="hint">No reviews yet.</p>
+    }
+  }
+</section>

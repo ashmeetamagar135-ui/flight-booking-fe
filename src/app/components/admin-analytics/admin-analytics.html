@@ -1,0 +1,112 @@
+<h1>Analytics</h1>
+
+<form class="card filter" [formGroup]="range" (ngSubmit)="load()">
+  <div class="field">
+    <label for="start">From date</label>
+    <input id="start" type="date" formControlName="start" />
+  </div>
+  <div class="field">
+    <label for="end">To date</label>
+    <input id="end" type="date" formControlName="end" />
+  </div>
+  <div class="field">
+    <label for="order">Occupancy order</label>
+    <select id="order" formControlName="order">
+      <option value="desc">Fullest flights first</option>
+      <option value="asc">Emptiest flights first</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">Update</button>
+</form>
+
+@if (loading()) {
+  <p>Loading reports...</p>
+}
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+<div class="grid">
+  @if (revenue(); as rev) {
+    <section class="card">
+      <h2>Revenue</h2>
+      <p class="big">{{ rev.total_paid | currency: 'GBP' }} <small>total paid</small></p>
+      <table>
+        <caption class="sr-only">Revenue by airline</caption>
+        <thead><tr><th scope="col">Airline</th><th scope="col">Payments</th><th scope="col">Revenue</th></tr></thead>
+        <tbody>
+          @for (a of rev.by_airline; track a.airline) {
+            <tr><td>{{ a.airline }}</td><td>{{ a.payments }}</td><td>{{ a.revenue | currency: 'GBP' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  @if (trends(); as t) {
+    <section class="card">
+      <h2>Bookings per month</h2>
+      <table>
+        <caption class="sr-only">Bookings per month</caption>
+        <thead><tr><th scope="col">Month</th><th scope="col">Total</th><th scope="col">Cancelled</th><th scope="col">Cancel rate</th></tr></thead>
+        <tbody>
+          @for (m of t.bookings_per_month; track m.month) {
+            <tr>
+              <td>{{ m.month }}</td><td>{{ m.total }}</td><td>{{ m.cancelled }}</td>
+              <td>{{ m.cancellation_rate_percent }}%</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Top routes</h2>
+      <table>
+        <caption class="sr-only">Most booked routes</caption>
+        <thead><tr><th scope="col">Route</th><th scope="col">Bookings</th></tr></thead>
+        <tbody>
+          @for (r of t.top_routes; track r.from + r.to) {
+            <tr><td>{{ r.from }} &rarr; {{ r.to }}</td><td>{{ r.bookings }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  @if (occupancy(); as o) {
+    <section class="card">
+      <h2>Seat occupancy by flight</h2>
+      <table>
+        <caption class="sr-only">Seat occupancy by flight</caption>
+        <thead><tr><th scope="col">Flight</th><th scope="col">Route</th><th scope="col">Booked</th><th scope="col">Full</th></tr></thead>
+        <tbody>
+          @for (f of o.flights; track f.flight_number) {
+            <tr>
+              <td>{{ f.flight_number }}</td>
+              <td>{{ f.departure_city }} &rarr; {{ f.arrival_city }}</td>
+              <td>{{ f.booked_seats }} / {{ f.total_seats }}</td>
+              <td>
+                <span class="bar" [style.width.%]="f.occupancy_percent"></span>
+                {{ f.occupancy_percent }}%
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Average occupancy by airline</h2>
+      <table>
+        <caption class="sr-only">Average occupancy by airline</caption>
+        <thead><tr><th scope="col">Airline</th><th scope="col">Flights</th><th scope="col">Average full</th></tr></thead>
+        <tbody>
+          @for (a of o.airlines; track a.airline) {
+            <tr><td>{{ a.airline }}</td><td>{{ a.flights }}</td><td>{{ a.average_occupancy_percent }}%</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</div>

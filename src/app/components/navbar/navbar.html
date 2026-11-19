@@ -7,6 +7,10 @@
       @if (auth.isLoggedIn()) {
         <a routerLink="/bookings" routerLinkActive="active">My bookings</a>
       }
+      @if (auth.isAdmin()) {
+        <a routerLink="/admin/flights" routerLinkActive="active">Manage flights</a>
+        <a routerLink="/admin/analytics" routerLinkActive="active">Analytics</a>
+      }
     </nav>
 
     <div class="account">
