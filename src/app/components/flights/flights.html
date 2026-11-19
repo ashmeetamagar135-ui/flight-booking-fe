@@ -106,6 +106,8 @@
           }
         </span>
       </footer>
+
+      <a class="btn btn-primary view" [routerLink]="['/flights', f._id]">View &amp; book</a>
     </article>
   } @empty {
     @if (!loading() && !error()) {

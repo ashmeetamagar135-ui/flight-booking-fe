@@ -1,0 +1,130 @@
+<p class="back"><a routerLink="/flights">&larr; Back to all flights</a></p>
+
+@if (loading()) {
+  <p>Loading flight...</p>
+}
+
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+@if (flight(); as f) {
+  <section class="card head">
+    <div class="top">
+      <h1>{{ f.departure_city }} &rarr; {{ f.arrival_city }}</h1>
+      <span class="status" [ngClass]="'status-' + f.status">{{ f.status }}</span>
+    </div>
+    <p class="meta">
+      <strong>{{ f.flight_number }}</strong> &middot;
+      Departs {{ f.departure_time | date: 'EEE d MMM y, HH:mm' : 'UTC' }} &middot;
+      Arrives {{ f.arrival_time | date: 'EEE d MMM y, HH:mm' : 'UTC' }}
+      <small>(UTC)</small>
+    </p>
+    <p class="price">{{ f.ticket_price | currency: 'GBP' }}
+      <small>per seat &middot; {{ f.available_seats }} seats left</small></p>
+  </section>
+
+  <div class="layout">
+    <section class="card">
+      <h2>Choose your seat</h2>
+
+      <ul class="legend">
+        <li><span class="swatch free"></span> Available</li>
+        <li><span class="swatch picked"></span> Your choice</li>
+        <li><span class="swatch taken"></span> Taken</li>
+        <li><span class="swatch biz"></span> Business</li>
+      </ul>
+
+      <div class="plane" role="group" aria-label="Seat map">
+        @for (row of rows(); track $index) {
+          <div class="seat-row">
+            @for (s of row; track s.seat_id) {
+              <button
+                type="button"
+                class="seat"
+                [class.business]="s.class === 'business'"
+                [class.taken]="s.status !== 'available'"
+                [class.picked]="selected() === s.seat_number"
+                [disabled]="s.status !== 'available' || step() !== 'select' || blockReason() !== ''"
+                [attr.aria-pressed]="selected() === s.seat_number"
+                [attr.aria-label]="'Seat ' + s.seat_number + ', ' + s.class + ', ' + s.status"
+                (click)="selectSeat(s.seat_number)">
+                {{ s.seat_number }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <aside class="card panel" aria-live="polite">
+      <h2>Your booking</h2>
+
+      @if (blockReason()) {
+        <p class="notice">{{ blockReason() }}</p>
+      } @else if (!auth.isLoggedIn()) {
+        <p>Please log in to book a seat on this flight.</p>
+        <a class="btn btn-primary btn-block"
+           routerLink="/login" [queryParams]="{ returnUrl: '/flights/' + f._id }">Log in to book</a>
+      } @else {
+        @switch (step()) {
+          @case ('select') {
+            @if (selected()) {
+              <p>Seat <strong>{{ selected() }}</strong> &middot;
+                {{ f.ticket_price | currency: 'GBP' }}</p>
+              <button class="btn btn-primary btn-block" type="button"
+                      [disabled]="busy()" (click)="book()">
+                {{ busy() ? 'Booking...' : 'Book seat ' + selected() }}
+              </button>
+            } @else {
+              <p>Click a free seat on the map to select it.</p>
+            }
+          }
+
+          @case ('pay') {
+            <p class="notice">Seat reserved. Total to pay:
+              <strong>{{ amount() | currency: 'GBP' }}</strong></p>
+
+            <form [formGroup]="payForm" (ngSubmit)="pay()" novalidate>
+              <div class="field">
+                <label for="method">Payment method</label>
+                <select id="method" formControlName="method">
+                  <option value="card">Card</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="bank_transfer">Bank transfer</option>
+                </select>
+              </div>
+
+              @if (payForm.controls.method.value === 'card') {
+                <div class="field">
+                  <label for="last4">Last 4 digits of card</label>
+                  <input id="last4" type="text" inputmode="numeric" maxlength="4"
+                         formControlName="card_last4" />
+                  @if (payForm.touched && payForm.hasError('last4')) {
+                    <small class="field-error">Enter exactly 4 digits.</small>
+                  }
+                </div>
+              }
+
+              <button class="btn btn-primary btn-block" type="submit" [disabled]="busy()">
+                {{ busy() ? 'Paying...' : 'Pay now' }}
+              </button>
+              <button class="btn btn-ghost btn-block" type="button" (click)="payLater()">
+                Pay later (go to my bookings)
+              </button>
+            </form>
+          }
+
+          @case ('done') {
+            <p class="success" role="status">Payment successful. Your seat is confirmed.</p>
+            <a class="btn btn-primary btn-block" routerLink="/bookings">View my bookings</a>
+          }
+        }
+      }
+
+      @if (bookError()) {
+        <p class="alert" role="alert">{{ bookError() }}</p>
+      }
+    </aside>
+  </div>
+}

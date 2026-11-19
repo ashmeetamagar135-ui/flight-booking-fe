@@ -6,7 +6,7 @@ import { Airport, Flight, FlightFilters, Page } from '../models/models';
 
 /** The API sends times like "2026-12-01T10:00:00" (UTC, but with no 'Z').
  *  Adding the 'Z' makes the browser read them as UTC, not local time. */
-function utc(value: string): string {
+export function utc(value: string): string {
   return /Z$|[+-]\d\d:\d\d$/.test(value) ? value : value + 'Z';
 }
 
@@ -35,6 +35,11 @@ export class FlightService {
     return this.http.get<Page<Flight>>(`${API_URL}/flights`, { params }).pipe(
       map((page) => ({ ...page, results: page.results.map(withUtcTimes) })),
     );
+  }
+
+  /** GET /flights/<id> - one flight including its full seat list. */
+  getFlight(id: string): Observable<Flight> {
+    return this.http.get<Flight>(`${API_URL}/flights/${id}`).pipe(map(withUtcTimes));
   }
 
   /** GET /airports (used to fill the city suggestions in the search form). */

@@ -1,0 +1,94 @@
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.bar select {
+  width: auto;
+  margin-left: 0.4rem;
+}
+.booking {
+  margin-bottom: 1rem;
+}
+.booking .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.booking h2 {
+  margin: 0 0 0.3rem;
+  font-size: 1.2rem;
+}
+.meta {
+  margin: 0.1rem 0;
+  color: var(--muted);
+}
+.badges {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+.badge {
+  text-transform: capitalize;
+  font-size: 0.78rem;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  background: #e8ebf3;
+}
+.st-confirmed {
+  background: #dff5e6;
+  color: #17632f;
+}
+.st-cancelled {
+  background: #fde0e0;
+  color: #9b1c1c;
+}
+.pay-paid {
+  background: #dff5e6;
+  color: #17632f;
+}
+.pay-unpaid {
+  background: #fff0cc;
+  color: #8a5a00;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: flex-end;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border);
+}
+.inline .field {
+  margin-bottom: 0;
+}
+.inline.confirm {
+  align-items: center;
+}
+.success {
+  background: #dff5e6;
+  color: #17632f;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+}
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 2rem 0;
+}
+.pager {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem 0;
+}

@@ -63,3 +63,29 @@ export interface LoginResponse {
   token: string;
   role: 'passenger' | 'admin';
 }
+
+/** A booking, as returned by GET /reservations (flight and payment are joined in). */
+export interface Reservation {
+  _id: string;
+  user_id: string;
+  flight_id: string;
+  seat_number: string;
+  booking_date: string;
+  status: 'confirmed' | 'cancelled' | 'completed';
+  amount: number;
+  flight?: {
+    flight_number: string;
+    departure_city: string;
+    arrival_city: string;
+    departure_time: string;
+    arrival_time: string;
+    status: string;
+  };
+  payment?: {
+    payment_status: 'paid' | 'pending' | 'refunded';
+    method: string;
+    payment_date: string;
+  };
+}
+
+export type PaymentMethod = 'card' | 'paypal' | 'bank_transfer';

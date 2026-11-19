@@ -1,13 +1,14 @@
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Flight, FlightFilters } from '../../models/models';
 import { FlightService } from '../../services/flight.service';
 import { errorMessage } from '../../services/api-error';
 
 @Component({
   selector: 'app-flights',
-  imports: [ReactiveFormsModule, DatePipe, CurrencyPipe, NgClass],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe, CurrencyPipe, NgClass],
   templateUrl: './flights.html',
   styleUrl: './flights.css',
 })

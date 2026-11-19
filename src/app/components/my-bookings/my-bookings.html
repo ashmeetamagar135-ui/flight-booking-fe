@@ -1,0 +1,128 @@
+<h1>My bookings</h1>
+
+<div class="bar">
+  <label>
+    Show
+    <select #st (change)="setStatus(st.value)" [value]="status()">
+      <option value="">All bookings</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="cancelled">Cancelled</option>
+      <option value="completed">Completed</option>
+    </select>
+  </label>
+  <span aria-live="polite">
+    @if (loading()) { Loading... } @else { <strong>{{ total() }}</strong> bookings }
+  </span>
+</div>
+
+@if (notice()) {
+  <p class="success" role="status">{{ notice() }}</p>
+}
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+@for (r of items(); track r._id) {
+  <article class="card booking">
+    <div class="row">
+      <div>
+        <h2>
+          {{ r.flight?.departure_city }} &rarr; {{ r.flight?.arrival_city }}
+        </h2>
+        <p class="meta">
+          {{ r.flight?.flight_number }} &middot;
+          @if (r.flight) {
+            {{ r.flight.departure_time | date: 'EEE d MMM y, HH:mm' : 'UTC' }} (UTC)
+          }
+        </p>
+        <p class="meta">
+          Seat <strong>{{ r.seat_number }}</strong> &middot;
+          {{ r.amount | currency: 'GBP' }} &middot;
+          booked {{ r.booking_date | date: 'd MMM y' : 'UTC' }}
+        </p>
+      </div>
+      <div class="badges">
+        <span class="badge" [ngClass]="'st-' + r.status">{{ r.status }}</span>
+        <span class="badge" [ngClass]="'pay-' + paymentLabel(r).toLowerCase()">
+          {{ paymentLabel(r) }}
+        </span>
+      </div>
+    </div>
+
+    @if (r.status === 'confirmed') {
+      <div class="actions">
+        @if (!isPaid(r)) {
+          <button class="btn btn-primary" type="button" (click)="startPay(r)">Pay now</button>
+        }
+        <button class="btn btn-ghost" type="button" (click)="startChange(r)">Change seat</button>
+        <button class="btn btn-ghost" type="button" (click)="askCancel(r)">Cancel booking</button>
+        <a class="btn btn-ghost" [routerLink]="['/flights', r.flight_id]">View flight</a>
+      </div>
+    }
+
+    @if (payingId() === r._id) {
+      <form class="inline" [formGroup]="payForm" (ngSubmit)="submitPay(r)" novalidate>
+        <div class="field">
+          <label [for]="'m' + r._id">Method</label>
+          <select [id]="'m' + r._id" formControlName="method">
+            <option value="card">Card</option>
+            <option value="paypal">PayPal</option>
+            <option value="bank_transfer">Bank transfer</option>
+          </select>
+        </div>
+        @if (payForm.controls.method.value === 'card') {
+          <div class="field">
+            <label [for]="'c' + r._id">Last 4 digits of card</label>
+            <input [id]="'c' + r._id" type="text" inputmode="numeric" maxlength="4"
+                   formControlName="card_last4" />
+            @if (payForm.touched && payForm.hasError('last4')) {
+              <small class="field-error">Enter exactly 4 digits.</small>
+            }
+          </div>
+        }
+        <button class="btn btn-primary" type="submit" [disabled]="busy()">
+          Pay {{ r.amount | currency: 'GBP' }}
+        </button>
+        <button class="btn btn-ghost" type="button" (click)="payingId.set(null)">Close</button>
+      </form>
+    }
+
+    @if (changingId() === r._id) {
+      <form class="inline" (submit)="submitChange(r, $event)" novalidate>
+        <div class="field">
+          <label [for]="'s' + r._id">New seat (for example 4C)</label>
+          <input [id]="'s' + r._id" type="text" maxlength="4" [formControl]="seatControl" />
+          @if (seatControl.touched && seatControl.invalid) {
+            <small class="field-error">Use a seat like 4C.</small>
+          }
+        </div>
+        <button class="btn btn-primary" type="submit" [disabled]="busy()">Change seat</button>
+        <button class="btn btn-ghost" type="button" (click)="changingId.set(null)">Close</button>
+      </form>
+    }
+
+    @if (cancelId() === r._id) {
+      <div class="inline confirm" role="alertdialog" aria-label="Confirm cancellation">
+        <span>Cancel this booking? A paid booking is refunded.</span>
+        <button class="btn btn-danger" type="button" [disabled]="busy()"
+                (click)="confirmCancel(r)">Yes, cancel it</button>
+        <button class="btn btn-ghost" type="button" (click)="cancelId.set(null)">Keep it</button>
+      </div>
+    }
+  </article>
+} @empty {
+  @if (!loading() && !error()) {
+    <p class="empty">You have no bookings here yet.
+      <a routerLink="/flights">Find a flight</a>.</p>
+  }
+}
+
+@if (totalPages() > 1) {
+  <nav class="pager" aria-label="Pagination">
+    <button class="btn btn-ghost" type="button" [disabled]="page() === 1"
+            (click)="goTo(page() - 1)">Previous</button>
+    <span>Page {{ page() }} of {{ totalPages() }}</span>
+    <button class="btn btn-ghost" type="button" [disabled]="page() === totalPages()"
+            (click)="goTo(page() + 1)">Next</button>
+  </nav>
+}
