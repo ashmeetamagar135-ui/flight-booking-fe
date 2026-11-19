@@ -93,6 +93,7 @@
       <p class="time">
         <span>Departs {{ f.departure_time | date: 'EEE d MMM y, HH:mm' : 'UTC' }}</span>
         <span>Arrives {{ f.arrival_time | date: 'EEE d MMM y, HH:mm' : 'UTC' }}</span>
+        <span>Duration {{ f.departure_time | duration: f.arrival_time }}</span>
         <small>(times in UTC)</small>
       </p>
 

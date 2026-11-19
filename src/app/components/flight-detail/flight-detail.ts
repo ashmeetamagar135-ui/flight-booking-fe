@@ -7,12 +7,13 @@ import { errorMessage } from '../../services/api-error';
 import { AuthService } from '../../services/auth.service';
 import { BookingService } from '../../services/booking.service';
 import { FlightService } from '../../services/flight.service';
+import { DurationPipe } from '../../pipes/duration.pipe';
 import { Reviews } from '../reviews/reviews';
 import { cardNeedsLast4 } from '../../services/form-validators';
 
 @Component({
   selector: 'app-flight-detail',
-  imports: [ReactiveFormsModule, RouterLink, DatePipe, CurrencyPipe, NgClass, Reviews],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe, CurrencyPipe, NgClass, Reviews, DurationPipe],
   templateUrl: './flight-detail.html',
   styleUrl: './flight-detail.css',
 })

@@ -1,20 +1,22 @@
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Flight, FlightFilters } from '../../models/models';
 import { FlightService } from '../../services/flight.service';
 import { errorMessage } from '../../services/api-error';
+import { DurationPipe } from '../../pipes/duration.pipe';
 
 @Component({
   selector: 'app-flights',
-  imports: [ReactiveFormsModule, RouterLink, DatePipe, CurrencyPipe, NgClass],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe, CurrencyPipe, NgClass, DurationPipe],
   templateUrl: './flights.html',
   styleUrl: './flights.css',
 })
 export class Flights implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private flightService = inject(FlightService);
+  private route = inject(ActivatedRoute);
 
   // The search form. Each control matches a query-string name in the API.
   form = this.fb.group({
@@ -53,6 +55,9 @@ export class Flights implements OnInit {
   });
 
   ngOnInit(): void {
+    // Links such as /flights?from=London (from the Airports page) pre-fill the search.
+    const query = this.route.snapshot.queryParamMap;
+    this.form.patchValue({ from: query.get('from') ?? '', to: query.get('to') ?? '' });
     this.load();
     // Fill the city suggestion lists from the airports collection.
     this.flightService.getAirports().subscribe({

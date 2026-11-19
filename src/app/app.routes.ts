@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { Airports } from './components/airports/airports';
 import { AdminAnalytics } from './components/admin-analytics/admin-analytics';
 import { AdminFlights } from './components/admin-flights/admin-flights';
 import { FlightDetail } from './components/flight-detail/flight-detail';
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: '', redirectTo: 'flights', pathMatch: 'full' },
   { path: 'flights', component: Flights, title: 'Find flights' },
   { path: 'flights/:id', component: FlightDetail, title: 'Flight details' },
+  { path: 'airports', component: Airports, title: 'Airports' },
   { path: 'bookings', component: MyBookings, canActivate: [authGuard], title: 'My bookings' },
   { path: 'login', component: Login, title: 'Log in' },
   { path: 'register', component: Register, title: 'Create account' },

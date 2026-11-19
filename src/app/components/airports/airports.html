@@ -1,0 +1,101 @@
+<h1>Airports</h1>
+
+<div class="layout">
+  <section class="card">
+    <h2>Airports near a place</h2>
+    <p class="hint">Uses the map coordinates stored in the database.</p>
+
+    <form [formGroup]="near" (ngSubmit)="findNear()" novalidate>
+      <div class="coords">
+        <div class="field">
+          <label for="lat">Latitude</label>
+          <input id="lat" type="number" step="any" formControlName="lat" />
+        </div>
+        <div class="field">
+          <label for="lng">Longitude</label>
+          <input id="lng" type="number" step="any" formControlName="lng" />
+        </div>
+        <div class="field">
+          <label for="km">Within (km)</label>
+          <input id="km" type="number" formControlName="max_km" />
+        </div>
+      </div>
+      @if (near.touched && near.invalid) {
+        <small class="field-error">
+          Latitude must be -90 to 90, longitude -180 to 180, distance 1 to 5000 km.
+        </small>
+      }
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Find airports</button>
+        <button class="btn btn-ghost" type="button" [disabled]="locating()"
+                (click)="useMyLocation()">
+          {{ locating() ? 'Locating...' : 'Use my location' }}
+        </button>
+      </div>
+    </form>
+
+    @if (nearError()) {
+      <p class="alert" role="alert">{{ nearError() }}</p>
+    }
+
+    @if (nearby(); as list) {
+      <p aria-live="polite"><strong>{{ list.length }}</strong> airports found</p>
+      <ol class="nearby">
+        @for (a of list; track a._id) {
+          <li>
+            <span><strong>{{ a.iata_code }}</strong> {{ a.name }}, {{ a.city }}</span>
+            <span class="km">{{ a.distance_km }} km</span>
+          </li>
+        } @empty {
+          <li>No airports in that range. Try a bigger distance.</li>
+        }
+      </ol>
+    }
+  </section>
+
+  <section class="card">
+    <h2>All airports</h2>
+    <form class="filter" [formGroup]="filter" (ngSubmit)="search()">
+      <div class="field">
+        <label for="country">Country</label>
+        <input id="country" type="text" formControlName="country" />
+      </div>
+      <div class="field">
+        <label for="city">City</label>
+        <input id="city" type="text" formControlName="city" />
+      </div>
+      <button class="btn btn-primary" type="submit">Filter</button>
+    </form>
+
+    @if (error()) {
+      <p class="alert" role="alert">{{ error() }}</p>
+    }
+    <p aria-live="polite">
+      @if (loading()) { Loading... } @else { <strong>{{ total() }}</strong> airports }
+    </p>
+
+    <ul class="list">
+      @for (a of airports(); track a._id) {
+        <li>
+          <div>
+            <strong>{{ a.iata_code }}</strong> {{ a.name }}
+            <small>{{ a.city }}, {{ a.country }}</small>
+          </div>
+          <a class="btn btn-ghost" routerLink="/flights" [queryParams]="{ from: a.city }">
+            Flights from here
+          </a>
+        </li>
+      }
+    </ul>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button class="btn btn-ghost" type="button" [disabled]="page() === 1"
+                (click)="goTo(page() - 1)">Previous</button>
+        <span>Page {{ page() }} of {{ totalPages() }}</span>
+        <button class="btn btn-ghost" type="button" [disabled]="page() === totalPages()"
+                (click)="goTo(page() + 1)">Next</button>
+      </nav>
+    }
+  </section>
+</div>

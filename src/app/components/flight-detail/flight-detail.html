@@ -18,7 +18,8 @@
       <strong>{{ f.flight_number }}</strong> &middot;
       Departs {{ f.departure_time | date: 'EEE d MMM y, HH:mm' : 'UTC' }} &middot;
       Arrives {{ f.arrival_time | date: 'EEE d MMM y, HH:mm' : 'UTC' }}
-      <small>(UTC)</small>
+      <small>(UTC)</small> &middot;
+      {{ f.departure_time | duration: f.arrival_time }}
     </p>
     <p class="price">{{ f.ticket_price | currency: 'GBP' }}
       <small>per seat &middot; {{ f.available_seats }} seats left</small></p>

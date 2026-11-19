@@ -37,6 +37,8 @@ export interface Airport {
   name: string;
   city: string;
   country: string;
+  /** Only present in "airports near me" results. */
+  distance_km?: number;
 }
 
 /** Every list endpoint in the API answers in this paged shape. */

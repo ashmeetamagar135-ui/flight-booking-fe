@@ -4,6 +4,7 @@
 
     <nav aria-label="Main navigation" class="links">
       <a routerLink="/flights" routerLinkActive="active">Flights</a>
+      <a routerLink="/airports" routerLinkActive="active">Airports</a>
       @if (auth.isLoggedIn()) {
         <a routerLink="/bookings" routerLinkActive="active">My bookings</a>
       }
